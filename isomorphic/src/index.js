@@ -1,7 +1,13 @@
-var Hapi = require('hapi');
-var server = new Hapi.Server();
+
+import Hapi from 'hapi';
 import nunjucks from 'nunjucks';
+import Application from './lib';
+import Controller from './lib/controller'
+
+const server = new Hapi.Server();
+
 nunjucks.configure('./dist');
+
 server.connection({
   host: 'localhost',
   port: '8000'
@@ -25,31 +31,40 @@ function getName(request) { // 默认值
   name.lname;
        return name;
 }
-server.route({
-  method: 'GET',
-  path:'/hello',
-  handler: function(request, reply) {
-    // reply('hello world');
-     // 读取模板并使用上下文对象进行编译
-    nunjucks.render('index.html', {
-      fname: request.params.fname,
-      lname: request.params.lname
-    }, function (err, html) {
-    // 使用HTML内容响应请求
-      reply(html);
-    });
-  }
-});
-server.route({
-  method: 'GET',
-  path:'/hello/{name*}',
-  handler: function (request, reply) {
-    // 读取模板并使用上下文对象进行编译
-    nunjucks.render('index.html', getName(request), function (err, html) {
-    // 使用HTML内容响应请求
-      reply(html);
-    });
-} });
+
+const application = new Application({
+  // 响应来自http://localhost:8000/的请求 
+  '/': Controller
+  }, {
+       server: server
+  });
+
+     
+// server.route({
+//   method: 'GET',
+//   path:'/hello',
+//   handler: function(request, reply) {
+//     // reply('hello world');
+//      // 读取模板并使用上下文对象进行编译
+//     nunjucks.render('index.html', {
+//       fname: request.params.fname,
+//       lname: request.params.lname
+//     }, function (err, html) {
+//     // 使用HTML内容响应请求
+//       reply(html);
+//     });
+//   }
+// });
+// server.route({
+//   method: 'GET',
+//   path:'/hello/{name*}',
+//   handler: function (request, reply) {
+//     // 读取模板并使用上下文对象进行编译
+//     nunjucks.render('index.html', getName(request), function (err, html) {
+//     // 使用HTML内容响应请求
+//       reply(html);
+//     });
+// } });
 
 server.start();
 
